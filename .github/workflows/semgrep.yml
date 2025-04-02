@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: semgrep ci --sarif-output=semgrep-report.sarif
-      - uses: actions/upload-sarif@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: semgrep-report.sarif
           path: semgrep-report.sarif
