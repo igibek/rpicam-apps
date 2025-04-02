@@ -12,7 +12,11 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - run: semgrep ci
+      - run: semgrep ci --sarif-output=semgrep-report.sarif
+      - uses: actions/upload-sarif@v4
+        with:
+          name: semgrep-report.sarif
+          path: semgrep-report.sarif
   semgrep-ci-debug:
     container:
       image: semgrep/semgrep:canary
