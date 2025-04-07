@@ -13,10 +13,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: semgrep ci --sarif-output=semgrep-report.sarif
-      - uses: actions/upload-artifact@v4
+      # - uses: actions/upload-artifact@v4
+      #   with:
+      #     name: semgrep-report.sarif
+      #     path: semgrep-report.sarif
+      - name: Upload SARIF files
+        uses: github/codeql-action/upload-sarif@v3
         with:
-          name: semgrep-report.sarif
-          path: semgrep-report.sarif
+          # Path to SARIF file relative to the root of the repository. We can path sarif-output folder to upload the whole folder
+          sarif_file: semgrep-report.sarif
+          # Optional category for the results
+          # Used to differentiate multiple results for one commit
+          category: semgrep-scan
   semgrep-ci-debug:
     container:
       image: semgrep/semgrep:canary
