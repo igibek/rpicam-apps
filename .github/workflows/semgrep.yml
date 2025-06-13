@@ -1,49 +1,31 @@
-name: semgrep
+name: Semgrep
+
 on:
-  workflow_dispatch: null
+  pull_request:
+    branches: ["main", "master"]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
 jobs:
-  semgrep-ci:
+  semgrep:
+    name: semgrep/ci
+    runs-on: ubuntu-latest
+
     container:
-      image: semgrep/semgrep:canary
-    env:
-      E2E_APP_TOKEN: ${{ secrets.SEMGREP_E2E_APP_TOKEN }}
-      SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
+      image: semgrep/semgrep
+
     if: (github.actor != 'dependabot[bot]')
-    runs-on: ubuntu-24.04
+
     steps:
       - uses: actions/checkout@v4
       - run: semgrep ci --sarif-output=semgrep-report.sarif
-      # - uses: actions/upload-artifact@v4
-      #   with:
-      #     name: semgrep-report.sarif
-      #     path: semgrep-report.sarif
-      - name: Upload SARIF files
+        env:
+          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
+
+      - name: Upload SARIF file for GitHub Advanced Security Dashboard
         uses: github/codeql-action/upload-sarif@v3
         with:
-          # Path to SARIF file relative to the root of the repository. We can path sarif-output folder to upload the whole folder
           sarif_file: semgrep-report.sarif
-          # Optional category for the results
-          # Used to differentiate multiple results for one commit
           category: semgrep-scan
-  semgrep-ci-debug:
-    container:
-      image: semgrep/semgrep:canary
-    env:
-      E2E_APP_TOKEN: ${{ secrets.SEMGREP_E2E_APP_TOKEN }}
-      SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
-    if: (github.actor != 'dependabot[bot]')
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v4
-      - run: semgrep ci --debug
-  semgrep-ci-oss:
-    container:
-      image: semgrep/semgrep:canary
-    env:
-    #   E2E_APP_TOKEN: ${{ secrets.SEMGREP_E2E_APP_TOKEN }}
-      SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
-    if: (github.actor != 'dependabot[bot]')
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v4
-      - run: semgrep ci --oss-only
